@@ -264,7 +264,7 @@ bignum bignum_fme_modpow(bignum *ia, bignum *ib, bignum *imod) /* (ia^ib) % imod
 		sequence = divide_bignum(&tmp, &mod, &nul);
 		divide_bignum(&b, &div2, &tmp); // Emulates >>1
 		b = tmp;
-		if ((b.digits[b.lastdigit]) == 0 && b.lastdigit == 0) { break; }
+		if ((b.digits[0]) == 0 && b.lastdigit == 0) { break; }
 	}
 
 	return product;
