@@ -56,5 +56,8 @@ NOTICE REQUIRED FOR USE OF SOME THIRD-PARTY-CODE LOCATED IN kernel_rsa.cl and Ca
     - Added modulus operator
     - Added pow operator
     - Fixed a few bugs when porting to GPU
+    - Addition of function bignum_fme_modpow which implements
+      a version of FME mod optimizations to the library for NUCAR testing
+      purposes.
  
  */

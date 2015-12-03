@@ -240,22 +240,49 @@ void bignum_pow(bignum *num, int exp)
     if (exp % 2 == 0) { *num = t2; }
 }
 
+bignum bignum_fme_modpow(bignum *ia, bignum *ib, bignum *imod) /* (ia^ib) % imod */
+{
+	bignum b = *ib;
+	bignum a = *ia;
+	bignum mod = *imod;
+	bignum product, sequence, nul, tmp, zero, div2;
+
+	int_to_bignum(0, &zero);
+	int_to_bignum(2, &div2);
+	int_to_bignum(1, &product);
+	sequence = divide_bignum(&a, &mod, &nul);
+
+	while (true)
+	{
+		int last_digit = (int)b.digits[0];
+		if (last_digit&1)
+		{
+			multiply_bignum(&product, &sequence, &tmp);
+			product = divide_bignum(&tmp, &mod, &nul);
+		}
+		multiply_bignum(&sequence, &sequence, &tmp);
+		sequence = divide_bignum(&tmp, &mod, &nul);
+		divide_bignum(&b, &div2, &tmp); // Emulates >>1
+		b = tmp;
+		if ((b.digits[b.lastdigit]) == 0 && b.lastdigit == 0) { break; }
+	}
+
+	return product;
+}
+
 __kernel void rsa_cypher(__global bignum *p, __global bignum *q, __global bignum *M, __global bignum *result, int e)
 {
-    bignum lp,lq,n,pm1,qm1,totient,c,cmod,one;
+    bignum lp,lq,n,c,cmod,one,e_bignum;
     lp = *p;
     lq = *q;
-    
+
+    int_to_bignum(e, &e_bignum);
     int_to_bignum(1, &one);
     
     multiply_bignum(&lp, &lq, &n);
-    subtract_bignum(&lp, &one, &pm1);
-    subtract_bignum(&lq, &one, &qm1);
-    multiply_bignum(&pm1, &qm1, &totient);
     
     c = *M;
-    bignum_pow(&c, 7);
-    cmod = divide_bignum(&c, &n, &totient);
-    
+    cmod = bignum_fme_modpow(&c, &e_bignum, &n);
+
     *result = cmod;
 }
